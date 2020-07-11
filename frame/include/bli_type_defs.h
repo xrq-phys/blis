@@ -924,6 +924,7 @@ typedef enum
 	BLIS_SYMM,
 	BLIS_SYRK,
 	BLIS_SYR2K,
+	BLIS_SKR2K,
 	BLIS_TRMM3,
 	BLIS_TRMM,
 	BLIS_TRSM,
@@ -931,7 +932,7 @@ typedef enum
 	BLIS_NOID
 } opid_t;
 
-#define BLIS_NUM_LEVEL3_OPS 10
+#define BLIS_NUM_LEVEL3_OPS 11
 
 
 // -- Blocksize ID type --

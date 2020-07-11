@@ -141,6 +141,14 @@ GENFRONT( syr2k, gemm, 4mh, 4 )
 GENFRONT( syr2k, gemm, 4m1, 1 )
 GENFRONT( syr2k, gemm, 1m,  1 )
 
+// skr2k
+GENFRONT( skr2k, gemm, 3mh, 3 )
+GENFRONT( skr2k, gemm, 3m1, 1 )
+GENFRONT( skr2k, gemm, 4mh, 4 )
+//GENFRONT( skr2k, gemm, 4mb, 1 ) // Not implemented.
+GENFRONT( skr2k, gemm, 4m1, 1 )
+GENFRONT( skr2k, gemm, 1m,  1 )
+
 
 // -- hemm/symm/trmm3 ----------------------------------------------------------
 

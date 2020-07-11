@@ -409,6 +409,7 @@ void PASTEMAC2(ch,opname,EX_SUF) \
 }
 
 INSERT_GENTFUNC_BASIC0( syr2k )
+INSERT_GENTFUNC_BASIC0( skr2k )
 
 
 #undef  GENTFUNC

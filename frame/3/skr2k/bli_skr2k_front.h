@@ -32,96 +32,14 @@
 
 */
 
-#ifndef BLIS_L3_OFT_H
-#define BLIS_L3_OFT_H
-
-
-//
-// -- Level-3 object function types --------------------------------------------
-//
-
-// gemm
-
-#undef  GENTDEF
-#define GENTDEF( opname ) \
-\
-typedef void (*PASTECH(opname,_oft)) \
-( \
-  obj_t*  alpha, \
-  obj_t*  a, \
-  obj_t*  b, \
-  obj_t*  beta, \
-  obj_t*  c, \
-  cntx_t* cntx, \
-  rntm_t* rntm  \
-);
-
-GENTDEF( gemm )
-GENTDEF( her2k )
-GENTDEF( syr2k )
-GENTDEF( skr2k )
-
-
-// hemm, symm, trmm3
-
-#undef  GENTDEF
-#define GENTDEF( opname ) \
-\
-typedef void (*PASTECH(opname,_oft)) \
-( \
-  side_t  side, \
-  obj_t*  alpha, \
-  obj_t*  a, \
-  obj_t*  b, \
-  obj_t*  beta, \
-  obj_t*  c, \
-  cntx_t* cntx, \
-  rntm_t* rntm  \
-);
-
-GENTDEF( hemm )
-GENTDEF( symm )
-GENTDEF( trmm3 )
-
-
-// herk, syrk
-
-#undef  GENTDEF
-#define GENTDEF( opname ) \
-\
-typedef void (*PASTECH(opname,_oft)) \
-( \
-  obj_t*  alpha, \
-  obj_t*  a, \
-  obj_t*  beta, \
-  obj_t*  c, \
-  cntx_t* cntx, \
-  rntm_t* rntm  \
-);
-
-GENTDEF( herk )
-GENTDEF( syrk )
-
-
-// trmm, trsm
-
-#undef  GENTDEF
-#define GENTDEF( opname ) \
-\
-typedef void (*PASTECH(opname,_oft)) \
-( \
-  side_t  side, \
-  obj_t*  alpha, \
-  obj_t*  a, \
-  obj_t*  b, \
-  cntx_t* cntx, \
-  rntm_t* rntm  \
-);
-
-GENTDEF( trmm )
-GENTDEF( trsm )
-
-
-
-#endif
-
+void bli_skr2k_front
+     (
+       obj_t*  alpha,
+       obj_t*  a,
+       obj_t*  b,
+       obj_t*  beta,
+       obj_t*  c,
+       cntx_t* cntx,
+       rntm_t* rntm,
+       cntl_t* cntl
+     );
