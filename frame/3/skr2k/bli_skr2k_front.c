@@ -48,7 +48,8 @@ void bli_skr2k_front
 {
 	bli_init_once();
 
-	obj_t    alpha_neg;
+	obj_t    malpha_;
+	obj_t   *malpha = &malpha_;
 	obj_t    c_local;
 	obj_t    a_local;
 	obj_t    bt_local;
@@ -83,8 +84,8 @@ void bli_skr2k_front
 	bli_obj_scalar_init_detached_copy_of( bli_obj_dt( a ),
 	                                      BLIS_NO_CONJUGATE,
 	                                      alpha,
-	                                      &alpha_neg );
-	bli_obj_scalar_apply_scalar(&BLIS_MINUS_ONE, &alpha_neg);
+	                                      malpha );
+	bli_obj_scalar_apply_scalar(&BLIS_MINUS_ONE, malpha);
 
 	// An optimization: If C is stored by rows and the micro-kernel prefers
 	// contiguous columns, or if C is stored by columns and the micro-kernel
@@ -93,6 +94,11 @@ void bli_skr2k_front
 	if ( bli_cntx_l3_vir_ukr_dislikes_storage_of( &c_local, BLIS_GEMM_UKR, cntx ) )
 	{
 		bli_obj_induce_trans( &c_local );
+		// Skew-symmetric matrix not implemented as a type.
+		// Transposing would cause a -1 factor.
+		// Incorporate this factor into alpha.
+		malpha = alpha;
+		alpha = &malpha_;
 	}
 
 	// Parse and interpret the contents of the rntm_t object to properly
@@ -152,7 +158,7 @@ void bli_skr2k_front
 	(
 	  bli_gemm_int,
 	  BLIS_HERK, // operation family id
-	  &alpha_neg,
+	  malpha,
 	  &b_local,
 	  &at_local,
 	  &BLIS_ONE,
