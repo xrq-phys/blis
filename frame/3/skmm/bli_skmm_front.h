@@ -32,46 +32,15 @@
 
 */
 
-#ifndef BLIS_L3_IND_H
-#define BLIS_L3_IND_H
-
-// -----------------------------------------------------------------------------
-
-#undef  GENPROT
-#define GENPROT( opname ) \
-\
-void_fp PASTEMAC(opname,ind_get_avail)( num_t dt );
-/*bool PASTEMAC(opname,ind_has_avail)( num_t dt ); */
-
-GENPROT( gemm )
-GENPROT( hemm )
-GENPROT( herk )
-GENPROT( her2k )
-GENPROT( symm )
-GENPROT( syrk )
-GENPROT( syr2k )
-GENPROT( skmm )
-GENPROT( skr2k )
-GENPROT( trmm3 )
-GENPROT( trmm )
-GENPROT( trsm )
-
-// -----------------------------------------------------------------------------
-
-//bool bli_l3_ind_oper_is_avail( opid_t oper, ind_t method, num_t dt );
-
-ind_t   bli_l3_ind_oper_find_avail( opid_t oper, num_t dt );
-
-void    bli_l3_ind_set_enable_dt( ind_t method, num_t dt, bool status );
-
-void    bli_l3_ind_oper_enable_only( opid_t oper, ind_t method, num_t dt );
-void    bli_l3_ind_oper_set_enable_all( opid_t oper, num_t dt, bool status );
-
-void    bli_l3_ind_oper_set_enable( opid_t oper, ind_t method, num_t dt, bool status );
-bool    bli_l3_ind_oper_get_enable( opid_t oper, ind_t method, num_t dt );
-
-void_fp bli_l3_ind_oper_get_func( opid_t oper, ind_t method );
-
-
-#endif
-
+void bli_skmm_front
+     (
+       side_t  side,
+       obj_t*  alpha,
+       obj_t*  a,
+       obj_t*  b,
+       obj_t*  beta,
+       obj_t*  c,
+       cntx_t* cntx,
+       rntm_t* rntm,
+       cntl_t* cntl
+     );

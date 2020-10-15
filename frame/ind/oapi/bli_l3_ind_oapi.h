@@ -46,6 +46,7 @@ BLIS_EXPORT_BLIS void PASTEMAC(herk,imeth) (              obj_t* alpha, obj_t* a
 BLIS_EXPORT_BLIS void PASTEMAC(her2k,imeth)(              obj_t* alpha, obj_t* a, obj_t* b, obj_t* beta, obj_t* c, cntx_t* cntx, rntm_t* rntm ); \
 BLIS_EXPORT_BLIS void PASTEMAC(symm,imeth) ( side_t side, obj_t* alpha, obj_t* a, obj_t* b, obj_t* beta, obj_t* c, cntx_t* cntx, rntm_t* rntm ); \
 BLIS_EXPORT_BLIS void PASTEMAC(syrk,imeth) (              obj_t* alpha, obj_t* a,           obj_t* beta, obj_t* c, cntx_t* cntx, rntm_t* rntm ); \
+BLIS_EXPORT_BLIS void PASTEMAC(skmm,imeth) ( side_t side, obj_t* alpha, obj_t* a, obj_t* b, obj_t* beta, obj_t* c, cntx_t* cntx, rntm_t* rntm ); \
 BLIS_EXPORT_BLIS void PASTEMAC(syr2k,imeth)(              obj_t* alpha, obj_t* a, obj_t* b, obj_t* beta, obj_t* c, cntx_t* cntx, rntm_t* rntm ); \
 BLIS_EXPORT_BLIS void PASTEMAC(skr2k,imeth)(              obj_t* alpha, obj_t* a, obj_t* b, obj_t* beta, obj_t* c, cntx_t* cntx, rntm_t* rntm ); \
 BLIS_EXPORT_BLIS void PASTEMAC(trmm3,imeth)( side_t side, obj_t* alpha, obj_t* a, obj_t* b, obj_t* beta, obj_t* c, cntx_t* cntx, rntm_t* rntm ); \
@@ -73,6 +74,7 @@ BLIS_EXPORT_BLIS void PASTEMAC(her2k,imeth)(              obj_t* alpha, obj_t* a
 BLIS_EXPORT_BLIS void PASTEMAC(symm,imeth) ( side_t side, obj_t* alpha, obj_t* a, obj_t* b, obj_t* beta, obj_t* c, cntx_t* cntx, rntm_t* rntm ); \
 BLIS_EXPORT_BLIS void PASTEMAC(syrk,imeth) (              obj_t* alpha, obj_t* a,           obj_t* beta, obj_t* c, cntx_t* cntx, rntm_t* rntm ); \
 BLIS_EXPORT_BLIS void PASTEMAC(syr2k,imeth)(              obj_t* alpha, obj_t* a, obj_t* b, obj_t* beta, obj_t* c, cntx_t* cntx, rntm_t* rntm ); \
+BLIS_EXPORT_BLIS void PASTEMAC(skmm,imeth) ( side_t side, obj_t* alpha, obj_t* a, obj_t* b, obj_t* beta, obj_t* c, cntx_t* cntx, rntm_t* rntm ); \
 BLIS_EXPORT_BLIS void PASTEMAC(skr2k,imeth)(              obj_t* alpha, obj_t* a, obj_t* b, obj_t* beta, obj_t* c, cntx_t* cntx, rntm_t* rntm ); \
 BLIS_EXPORT_BLIS void PASTEMAC(trmm3,imeth)( side_t side, obj_t* alpha, obj_t* a, obj_t* b, obj_t* beta, obj_t* c, cntx_t* cntx, rntm_t* rntm );
 

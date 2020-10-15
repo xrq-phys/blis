@@ -234,6 +234,14 @@ GENFRONT( symm, gemm, 4mh, 4 )
 GENFRONT( symm, gemm, 4m1, 1 )
 GENFRONT( symm, gemm, 1m,  1 )
 
+// skmm
+GENFRONT( skmm, gemm, 3mh, 3 )
+GENFRONT( skmm, gemm, 3m1, 1 )
+GENFRONT( skmm, gemm, 4mh, 4 )
+//GENFRONT( symm, gemm, 4mb, 1 ) // Not implemented.
+GENFRONT( skmm, gemm, 4m1, 1 )
+GENFRONT( skmm, gemm, 1m,  1 )
+
 // trmm3
 GENFRONT( trmm3, gemm, 3mh, 3 )
 GENFRONT( trmm3, gemm, 3m1, 1 )

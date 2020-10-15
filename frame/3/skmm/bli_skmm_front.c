@@ -34,8 +34,9 @@
 
 #include "blis.h"
 
-void bli_skr2k_front
+void bli_skmm_front
      (
+       side_t  side,
        obj_t*  alpha,
        obj_t*  a,
        obj_t*  b,
@@ -48,13 +49,19 @@ void bli_skr2k_front
 {
 	bli_init_once();
 
-	obj_t    malpha_;
-	obj_t   *malpha = &malpha_;
-	obj_t    c_local;
-	obj_t    a_local;
-	obj_t    bt_local;
-	obj_t    b_local;
-	obj_t    at_local;
+	obj_t   a_local;
+	obj_t   b_local;
+	obj_t   c_local;
+	obj_t   malpha_;
+
+	// Check parameters.
+	if ( bli_error_checking_is_enabled() )
+	{
+		// Reluctant to define one more check.
+		// Do dimension check only & force a symmetry.
+		bli_hemm_basic_check( side, alpha, a, b, beta, c, cntx );
+		bli_obj_set_struc( BLIS_SKEWSYMMETRIC, a );
+	}
 
 	// If alpha is zero, scale by beta and return.
 	if ( bli_obj_equals( alpha, &BLIS_ZERO ) )
@@ -67,18 +74,6 @@ void bli_skr2k_front
 	bli_obj_alias_to( a, &a_local );
 	bli_obj_alias_to( b, &b_local );
 	bli_obj_alias_to( c, &c_local );
-	bli_obj_set_as_root( &c_local );
-
-	// For syr2k, the first and second right-hand "B" operands are simply B'
-	// and A'.
-	bli_obj_alias_to( b, &bt_local );
-	bli_obj_induce_trans( &bt_local );
-	bli_obj_alias_to( a, &at_local );
-	bli_obj_induce_trans( &at_local );
-
-	// Check parameters.
-	if ( bli_error_checking_is_enabled() )
-		bli_her2k_basic_check( alpha, a, &at_local, b, &bt_local, beta, c, cntx );
 
 	// Initialize a nagative copy of alpha.
 	bli_obj_scalar_init_detached_copy_of( bli_obj_dt( a ),
@@ -87,27 +82,81 @@ void bli_skr2k_front
 	                                      &malpha_ );
 	bli_obj_scalar_apply_scalar(&BLIS_MINUS_ONE, &malpha_);
 
+#ifdef BLIS_DISABLE_HEMM_RIGHT
+	// NOTE: This case casts right-side hemm in terms of left side. This is
+	// necessary when the current subconfiguration uses a gemm microkernel
+	// that assumes that the packing kernel will have already duplicated
+	// (broadcast) element of B in the packed copy of B. Supporting
+	// duplication within the logic that packs micropanels from Hermitian/
+	// matrices would be ugly, and so we simply don't support it. As a
+	// consequence, those subconfigurations need a way to force the Hermitian
+	// matrix to be on the left (and thus the general matrix to the on the
+	// right). So our solution is that in those cases, the subconfigurations
+	// simply #define BLIS_DISABLE_HEMM_RIGHT.
+
+	// NOTE: This case casts right-side hemm in terms of left side. This can
+	// lead to the microkernel being executed on an output matrix with the
+	// microkernel's general stride IO case (unless the microkernel supports
+	// both both row and column IO cases as well).
+
+	// If A is being multiplied from the right, transpose all operands
+	// so that we can perform the computation as if A were being multiplied
+	// from the left.
+	if ( bli_is_right( side ) )
+	{
+		bli_toggle_side( &side );
+		bli_obj_induce_trans( &a_local );
+		bli_obj_induce_trans( &b_local );
+		bli_obj_induce_trans( &c_local );
+	}
+
+#else
+	// NOTE: This case computes right-side hemm/symm natively by packing
+	// elements of the Hermitian/symmetric matrix A to micropanels of the
+	// right-hand packed matrix operand "B", and elements of the general
+	// matrix B to micropanels of the left-hand packed matrix operand "A".
+	// This code path always gives us the opportunity to transpose the
+	// entire operation so that the effective storage format of the output
+	// matrix matches the microkernel's output preference. Thus, from a
+	// performance perspective, this case is preferred.
+
 	// An optimization: If C is stored by rows and the micro-kernel prefers
 	// contiguous columns, or if C is stored by columns and the micro-kernel
 	// prefers contiguous rows, transpose the entire operation to allow the
 	// micro-kernel to access elements of C in its preferred manner.
+	//if ( !bli_obj_is_1x1( &c_local ) ) // NOTE: This conditional should NOT
+	                                     // be enabled. See issue #342 comments.
 	if ( bli_cntx_l3_vir_ukr_dislikes_storage_of( &c_local, BLIS_GEMM_UKR, cntx ) )
 	{
-		bli_obj_induce_trans( &c_local );
-		// Skew-symmetric matrix not implemented as a type.
-		// Transposing would cause a -1 factor.
-		// Incorporate this factor into alpha.
-		malpha = alpha;
 		alpha = &malpha_;
+		bli_toggle_side( &side );
+		bli_obj_induce_trans( &b_local );
+		bli_obj_induce_trans( &c_local );
 	}
+
+	// If the Hermitian/symmetric matrix A is being multiplied from the right,
+	// swap A and B so that the Hermitian/symmetric matrix will actually be on
+	// the right.
+	if ( bli_is_right( side ) )
+	{
+		bli_obj_swap( &a_local, &b_local );
+	}
+#endif
+
+	// Set each alias as the root object.
+	// NOTE: We MUST wait until we are done potentially swapping the objects
+	// before setting the root fields!
+	bli_obj_set_as_root( &a_local );
+	bli_obj_set_as_root( &b_local );
+	bli_obj_set_as_root( &c_local );
 
 	// Parse and interpret the contents of the rntm_t object to properly
 	// set the ways of parallelism for each loop, and then make any
 	// additional modifications necessary for the current operation.
 	bli_rntm_set_ways_for_op
 	(
-	  BLIS_SYR2K,
-	  BLIS_LEFT, // ignored for her[2]k/syr[2]k
+	  BLIS_HEMM,
+	  BLIS_LEFT, // ignored for gemm/hemm/symm
 	  bli_obj_length( &c_local ),
 	  bli_obj_width( &c_local ),
 	  bli_obj_width( &a_local ),
@@ -122,9 +171,7 @@ void bli_skr2k_front
 	if ( bli_cntx_method( cntx ) == BLIS_NAT )
 	{
 		bli_obj_set_pack_schema( BLIS_PACKED_ROW_PANELS, &a_local );
-		bli_obj_set_pack_schema( BLIS_PACKED_COL_PANELS, &bt_local );
-		bli_obj_set_pack_schema( BLIS_PACKED_ROW_PANELS, &b_local );
-		bli_obj_set_pack_schema( BLIS_PACKED_COL_PANELS, &at_local );
+		bli_obj_set_pack_schema( BLIS_PACKED_COL_PANELS, &b_local );
 	}
 	else // if ( bli_cntx_method( cntx ) != BLIS_NAT )
 	{
@@ -132,36 +179,18 @@ void bli_skr2k_front
 		pack_t schema_b = bli_cntx_schema_b_panel( cntx );
 
 		bli_obj_set_pack_schema( schema_a, &a_local );
-		bli_obj_set_pack_schema( schema_b, &bt_local );
-		bli_obj_set_pack_schema( schema_a, &b_local );
-		bli_obj_set_pack_schema( schema_b, &at_local );
+		bli_obj_set_pack_schema( schema_b, &b_local );
 	}
-
-	// Invoke herk twice, using beta only the first time.
 
 	// Invoke the internal back-end.
 	bli_l3_thread_decorator
 	(
 	  bli_gemm_int,
-	  BLIS_HERK, // operation family id
+	  BLIS_GEMM, // operation family id
 	  alpha,
 	  &a_local,
-	  &bt_local,
-	  beta,
-	  &c_local,
-	  cntx,
-	  rntm,
-	  cntl
-	);
-
-	bli_l3_thread_decorator
-	(
-	  bli_gemm_int,
-	  BLIS_HERK, // operation family id
-	  malpha,
 	  &b_local,
-	  &at_local,
-	  &BLIS_ONE,
+	  beta,
 	  &c_local,
 	  cntx,
 	  rntm,

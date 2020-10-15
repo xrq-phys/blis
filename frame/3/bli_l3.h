@@ -94,6 +94,7 @@
 #include "bli_symm.h"
 #include "bli_syrk.h"
 #include "bli_syr2k.h"
+#include "bli_skmm.h"
 #include "bli_skr2k.h"
 #include "bli_trmm.h"
 #include "bli_trmm3.h"
