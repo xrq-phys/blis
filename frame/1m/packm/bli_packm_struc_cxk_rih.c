@@ -310,6 +310,9 @@ void PASTEMAC(ch,varname) \
 	   diagonal separately from the case where it does intersect. */ \
 	if ( !bli_intersects_diag_n( diagoffc, m_panel, n_panel ) ) \
 	{ \
+		/* For skew-symmetric,
+		   copy kappa. */ \
+		ctype kappa_use = *kappa; \
 		/* If the current panel is unstored, we need to make a few
 		   adjustments so we refer to the data where it is actually
 		   stored, also taking conjugation into account. (Note this
@@ -324,6 +327,8 @@ void PASTEMAC(ch,varname) \
 \
 			if ( bli_is_hermitian( strucc ) ) \
 				bli_toggle_conj( &conjc ); \
+			if ( bli_is_skewsymmetric( strucc ) ) \
+				PASTEMAC(ch,negate)( &kappa_use ); \
 		} \
 \
 		/* Pack the full panel. */ \
@@ -335,7 +340,7 @@ void PASTEMAC(ch,varname) \
 		  panel_dim_max, \
 		  panel_len, \
 		  panel_len_max, \
-		  kappa, \
+		  &kappa_use, \
 		  c, incc, ldc, \
 		  p,       ldp, \
 		  cntx  \
@@ -351,6 +356,7 @@ void PASTEMAC(ch,varname) \
 		inc_t             incc10, ldc10; \
 		doff_t            diagoffc10; \
 		conj_t            conjc10; \
+		ctype             kappa10 = *kappa; /* Kappa copy for skew-symmetric. */ \
 \
 		ctype*   restrict c12; \
 		ctype_r* restrict p12; \
@@ -358,6 +364,7 @@ void PASTEMAC(ch,varname) \
 		inc_t             incc12, ldc12; \
 		doff_t            diagoffc12; \
 		conj_t            conjc12; \
+		ctype             kappa12 = *kappa; /* Kappa copy for skew-symmetric. */ \
 \
 		/* Sanity check. Diagonals should not intersect the short end of
 		   a micro-panel. If they do, then somehow the constraints on
@@ -394,6 +401,8 @@ void PASTEMAC(ch,varname) \
 \
 			if ( bli_is_hermitian( strucc ) ) \
 				bli_toggle_conj( &conjc12 ); \
+			if ( bli_is_skewsymmetric( strucc ) ) \
+				PASTEMAC(ch,negate)( &kappa12 ); \
 		} \
 		else /* if ( ( row_stored && bli_is_lower( uploc ) ) || \
 		             ( col_stored && bli_is_upper( uploc ) ) ) */ \
@@ -420,6 +429,8 @@ void PASTEMAC(ch,varname) \
 \
 			if ( bli_is_hermitian( strucc ) ) \
 				bli_toggle_conj( &conjc10 ); \
+			if ( bli_is_skewsymmetric( strucc ) ) \
+				PASTEMAC(ch,negate)( &kappa10 ); \
 		} \
 \
 		/* Pack to p10. For upper storage, this includes the unstored
@@ -436,7 +447,7 @@ void PASTEMAC(ch,varname) \
 		  panel_dim_max, \
 		  p10_len, \
 		  p10_len, \
-		  kappa, \
+		  &kappa10, \
 		            c10, incc10, ldc10, \
 		  ( ctype* )p10,         ldp, \
 		  cntx  \
@@ -456,7 +467,7 @@ void PASTEMAC(ch,varname) \
 		  panel_dim_max, \
 		  p12_len, \
 		  p12_len, \
-		  kappa, \
+		  &kappa12, \
 		            c12, incc12, ldc12, \
 		  ( ctype* )p12,         ldp, \
 		  cntx  \

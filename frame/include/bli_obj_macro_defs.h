@@ -377,7 +377,7 @@ BLIS_INLINE packbuf_t bli_obj_pack_buffer_type( obj_t* obj )
 BLIS_INLINE struc_t bli_obj_struc( obj_t* obj )
 {
 	return ( struc_t )
-	       ( obj->info & BLIS_STRUC_BITS );
+	       ( obj->info2 & BLIS_STRUC_BITS );
 }
 
 BLIS_INLINE bool bli_obj_is_general( obj_t* obj )
@@ -402,6 +402,12 @@ BLIS_INLINE bool bli_obj_is_triangular( obj_t* obj )
 {
 	return ( bool )
 	       ( bli_obj_struc( obj ) == BLIS_BITVAL_TRIANGULAR );
+}
+
+BLIS_INLINE bool bli_obj_is_skewsymmetric( obj_t* obj )
+{
+	return ( bool )
+	       ( bli_obj_struc( obj ) == BLIS_BITVAL_SKEWSYMMETRIC );
 }
 
 // Info modification
@@ -577,8 +583,8 @@ BLIS_INLINE void bli_obj_set_pack_buffer_type( packbuf_t buf_type, obj_t* obj )
 
 BLIS_INLINE void bli_obj_set_struc( struc_t struc, obj_t* obj )
 {
-	obj->info = ( objbits_t )
-	            ( ( obj->info & ~BLIS_STRUC_BITS ) | struc );
+	obj->info2 = ( objbits_t )
+	             ( ( obj->info2 & ~BLIS_STRUC_BITS ) | struc );
 }
 
 BLIS_INLINE void bli_obj_toggle_trans( obj_t* obj )
@@ -632,7 +638,9 @@ BLIS_INLINE bool bli_obj_root_is_herm_or_symm( obj_t* obj )
 {
 	return ( bool )
 	       ( bli_obj_is_hermitian( bli_obj_root( obj ) ) ||
-	         bli_obj_is_symmetric( bli_obj_root( obj ) ) );
+	         bli_obj_is_symmetric( bli_obj_root( obj ) ) ||
+			 // Treat skew-symmetric also.
+			 bli_obj_is_skewsymmetric( bli_obj_root( obj ) ));
 }
 
 BLIS_INLINE bool bli_obj_root_is_upper( obj_t* obj )
@@ -1263,7 +1271,9 @@ BLIS_INLINE void bli_obj_toggle_uplo_if_trans( trans_t trans, obj_t* obj )
 BLIS_INLINE void bli_obj_set_defaults( obj_t* obj )
 {
 	obj->info = 0x0;
-	obj->info = obj->info | BLIS_BITVAL_DENSE | BLIS_BITVAL_GENERAL;
+	obj->info = obj->info | BLIS_BITVAL_DENSE; // | BLIS_BITVAL_GENERAL;
+	// struct_t moved to info2 to contain more instances.
+	bli_obj_set_struc( BLIS_GENERAL, obj );
 }
 
 // Acquire buffer at object's submatrix offset (offset-aware buffer query).

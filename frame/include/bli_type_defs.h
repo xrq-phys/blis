@@ -321,7 +321,6 @@ typedef void* void_fp;
 #define BLIS_PACK_REV_IF_UPPER_SHIFT       23
 #define BLIS_PACK_REV_IF_LOWER_SHIFT       24
 #define BLIS_PACK_BUFFER_SHIFT             25
-#define BLIS_STRUC_SHIFT                   27
 #define BLIS_COMP_DT_SHIFT                 29
 #define   BLIS_COMP_DOMAIN_SHIFT           29
 #define   BLIS_COMP_PREC_SHIFT             30
@@ -330,6 +329,7 @@ typedef void* void_fp;
 #define BLIS_SCALAR_DT_SHIFT                0
 #define   BLIS_SCALAR_DOMAIN_SHIFT          0
 #define   BLIS_SCALAR_PREC_SHIFT            1
+#define BLIS_STRUC_SHIFT                   16
 
 //
 // -- BLIS info bit field masks ------------------------------------------------
@@ -362,7 +362,6 @@ typedef void* void_fp;
 #define BLIS_PACK_REV_IF_UPPER_BIT         ( 0x1  << BLIS_PACK_REV_IF_UPPER_SHIFT )
 #define BLIS_PACK_REV_IF_LOWER_BIT         ( 0x1  << BLIS_PACK_REV_IF_LOWER_SHIFT )
 #define BLIS_PACK_BUFFER_BITS              ( 0x3  << BLIS_PACK_BUFFER_SHIFT )
-#define BLIS_STRUC_BITS                    ( 0x3  << BLIS_STRUC_SHIFT )
 #define BLIS_COMP_DT_BITS                  ( 0x7  << BLIS_COMP_DT_SHIFT )
 #define   BLIS_COMP_DOMAIN_BIT             ( 0x1  << BLIS_COMP_DOMAIN_SHIFT )
 #define   BLIS_COMP_PREC_BIT               ( 0x1  << BLIS_COMP_PREC_SHIFT )
@@ -371,6 +370,7 @@ typedef void* void_fp;
 #define BLIS_SCALAR_DT_BITS                ( 0x7  << BLIS_SCALAR_DT_SHIFT )
 #define   BLIS_SCALAR_DOMAIN_BIT           ( 0x1  << BLIS_SCALAR_DOMAIN_SHIFT )
 #define   BLIS_SCALAR_PREC_BIT             ( 0x1  << BLIS_SCALAR_PREC_SHIFT )
+#define BLIS_STRUC_BITS                    ( 0x7  << BLIS_STRUC_SHIFT )
 
 
 //
@@ -444,6 +444,7 @@ typedef void* void_fp;
 #define BLIS_BITVAL_HERMITIAN               ( 0x1 << BLIS_STRUC_SHIFT )
 #define BLIS_BITVAL_SYMMETRIC               ( 0x2 << BLIS_STRUC_SHIFT )
 #define BLIS_BITVAL_TRIANGULAR              ( 0x3 << BLIS_STRUC_SHIFT )
+#define BLIS_BITVAL_SKEWSYMMETRIC           ( 0x4 << BLIS_STRUC_SHIFT )
 
 
 //
@@ -497,7 +498,8 @@ typedef enum
 	BLIS_GENERAL           = BLIS_BITVAL_GENERAL,
 	BLIS_HERMITIAN         = BLIS_BITVAL_HERMITIAN,
 	BLIS_SYMMETRIC         = BLIS_BITVAL_SYMMETRIC,
-	BLIS_TRIANGULAR        = BLIS_BITVAL_TRIANGULAR
+	BLIS_TRIANGULAR        = BLIS_BITVAL_TRIANGULAR,
+	BLIS_SKEWSYMMETRIC     = BLIS_BITVAL_SKEWSYMMETRIC
 } struc_t;
 
 

@@ -175,8 +175,13 @@ void PASTEMAC(ch,varname) \
 	{ \
 		/* The Hermitian and symmetric cases are almost identical, so we
 		   handle them in one conditional block. */ \
-		if ( bli_is_hermitian( strucc ) || bli_is_symmetric( strucc ) ) \
+		if ( bli_is_hermitian( strucc ) || bli_is_symmetric( strucc ) || \
+		     /* Do this also for skew-symmetric. */ \
+		     bli_is_skewsymmetric( strucc ) ) \
 		{ \
+			/* For skew-symmetric,
+			   copy kappa. */ \
+			ctype kappa_use = *kappa_cast; \
 			/* First we must reflect the region referenced to the opposite
 			   side of the diagonal. */ \
 			c_cast = c_cast + diagoffc * ( doff_t )cs_c + \
@@ -190,6 +195,8 @@ void PASTEMAC(ch,varname) \
 			   copying the region opposite the diagonal. */ \
 			if ( bli_is_hermitian( strucc ) ) \
 				transc = bli_trans_toggled_conj( transc ); \
+			if ( bli_is_skewsymmetric( strucc ) ) \
+				PASTEMAC(ch,negate)( &kappa_use ); \
 \
 			/* Copy the data from the region opposite the diagonal of c
 			   (as specified by the original value of diagoffc). Notice
@@ -203,7 +210,7 @@ void PASTEMAC(ch,varname) \
 			  transc, \
 			  m, \
 			  n, \
-			  kappa_cast, \
+			  &kappa_use, \
 			  c_cast, rs_c, cs_c, \
 			  p_cast, rs_p, cs_p, \
 			  cntx, \

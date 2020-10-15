@@ -366,11 +366,19 @@ BLIS_INLINE bool bli_is_triangular( struc_t struc )
 	       ( struc == BLIS_TRIANGULAR );
 }
 
+BLIS_INLINE bool bli_is_skewsymmetric( struc_t struc )
+{
+	return ( bool )
+	       ( struc == BLIS_SKEWSYMMETRIC );
+}
+
 BLIS_INLINE bool bli_is_herm_or_symm( struc_t struc )
 {
 	return ( bool )
 	       ( bli_is_hermitian( struc ) ||
-	         bli_is_symmetric( struc ) );
+	         bli_is_symmetric( struc ) ||
+	         // Treat skew-symmetric also.
+		 bli_is_skewsymmetric( struc ));
 }
 
 
@@ -1438,6 +1446,37 @@ BLIS_INLINE void bli_set_dims_incs_2d
 	*incx = rs_x + cs_x;
 	*incy = rs_y + cs_y;
 }
+
+// Additional typed scalar operations.
+BLIS_INLINE void bli_snegate( float *kappa )
+{
+	*kappa *= -1.0;
+}
+BLIS_INLINE void bli_dnegate( double *kappa )
+{
+	*kappa *= -1.0;
+}
+#ifdef BLIS_ENABLE_C99_COMPLEX
+BLIS_INLINE void bli_cnegate( scomplex *kappa )
+{
+	*kappa *= -1.0;
+}
+BLIS_INLINE void bli_znegate( dcomplex *kappa )
+{
+	*kappa *= -1.0;
+}
+#else
+BLIS_INLINE void bli_cnegate( scomplex *kappa )
+{
+	kappa->real *= -1.0;
+	kappa->imag *= -1.0;
+}
+BLIS_INLINE void bli_znegate( dcomplex *kappa )
+{
+	kappa->real *= -1.0;
+	kappa->imag *= -1.0;
+}
+#endif
 
 
 #endif
